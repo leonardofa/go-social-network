@@ -7,8 +7,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Execute initializes and returns the API router with all configured paths.
-func Execute() *mux.Router {
+// Init initializes and returns the API router with all configured paths.
+func Init() *mux.Router {
 	router := mux.NewRouter()
 
 	return path.Init(router)

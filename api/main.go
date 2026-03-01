@@ -5,12 +5,14 @@ import (
 	"log"
 	"net/http"
 
+	"api/src/config"
 	"api/src/router"
 )
 
 func main() {
-	fmt.Println("Starting GO - Social Network - API. 🚀🚀🚀")
+	config.Init()
+	routers := router.Init()
 
-	r := router.Execute()
-	log.Fatal(http.ListenAndServe(":5000", r))
+	fmt.Printf("Starting GO - Social Network - API. 🚀🚀🚀: http://localhost:%d", config.APIPort)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.APIPort), routers))
 }

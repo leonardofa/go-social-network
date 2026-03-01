@@ -4,7 +4,7 @@ package path
 import (
 	"net/http"
 
-	"api/src/controllers"
+	"api/src/controller"
 )
 
 // UserPath defines all user-related API endpoints.
@@ -12,31 +12,31 @@ var userPath = []Path{
 	{
 		URI:    "/users",
 		Method: http.MethodPost,
-		Func:   controllers.CreateUser,
+		Func:   controller.CreateUser,
 		Secure: false,
 	},
 	{
 		URI:    "/users/{id}",
 		Method: http.MethodGet,
-		Func:   controllers.ReadUser,
+		Func:   controller.ReadUser,
 		Secure: false,
 	},
 	{
 		URI:    "/users",
 		Method: http.MethodGet,
-		Func:   controllers.ReadUserList,
+		Func:   controller.ReadUserList,
 		Secure: false,
 	},
 	{
 		URI:    "/users/{id}",
 		Method: http.MethodPut,
-		Func:   controllers.UpdateUser,
+		Func:   controller.UpdateUser,
 		Secure: false,
 	},
 	{
 		URI:    "/users/{id}",
 		Method: http.MethodDelete,
-		Func:   controllers.DeleteUser,
+		Func:   controller.DeleteUser,
 		Secure: false,
 	},
 }

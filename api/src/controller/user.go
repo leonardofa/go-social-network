@@ -1,12 +1,44 @@
-package controllers
+package controller
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
 	"net/http"
+
+	"api/src/config"
+	"api/src/model"
+	"api/src/repository"
 )
 
 // CreateUser creates a new user.
-func CreateUser(w http.ResponseWriter, _ *http.Request) {
-	_, _ = w.Write([]byte("User created successfully"))
+func CreateUser(writer http.ResponseWriter, request *http.Request) {
+	body, err := io.ReadAll(request.Body)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	var user model.User
+	if err = json.Unmarshal(body, &user); err != nil {
+		log.Print(err)
+		return
+	}
+
+	dbConn, err := config.GetConnection()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	id, err := repository.New(dbConn).Create(user)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	_, _ = writer.Write([]byte(fmt.Sprintf("User created successfully with ID: %d", id)))
 }
 
 // ReadUser retrieves a single user by ID.
