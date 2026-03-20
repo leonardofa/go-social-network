@@ -11,7 +11,7 @@ import (
 // GetConnection establishes and returns a database connection.
 func GetConnection() (*sql.DB, error) {
 	// Open the database connection.
-	dbConn, err := sql.Open("mysql", DBUrl)
+	dbConn, err := sql.Open("mysql", DBUrl + "?parseTime=true")
 	if err != nil {
 		return nil, fmt.Errorf("error opening database: %w", err)
 	}

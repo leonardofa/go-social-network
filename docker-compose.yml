@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mysql:9.6.0
+    container_name: social-network-db
+#    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: socialnetwork
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - social-network-net
+
+  api:
+    profiles:
+      - api
+    build:
+      context: api
+      dockerfile: api/Dockerfile
+    container_name: social-network-api
+    #    restart: always
+    environment:
+      API_PORT: "5000"
+      DB_CONN_STRING: "root:root@tcp(db:3306)/socialnetwork"
+    ports:
+      - "5000:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - social-network-net
+
+networks:
+  social-network-net:
+    driver: bridge

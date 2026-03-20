@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"strings"
 
 	"api/src/model"
 )
@@ -22,7 +23,6 @@ func (repository *User) Create(user model.User) (uint64, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	defer statement.Close()
 
 	created, err := statement.Exec(user.Name, user.Nick, user.Email, user.Password)
@@ -36,4 +36,79 @@ func (repository *User) Create(user model.User) (uint64, error) {
 	}
 
 	return uint64(id), nil
+}
+
+// FindByNameOrNick retrieves users whose name or nickname matches the given input (case-insensitive), performing a SQL LIKE query.
+func (repository *User) FindByNameOrNick(nameOrNick string) ([]model.User, error) {
+	nameOrNickAsLike := strings.ToLower("%" + nameOrNick + "%")
+	lines, err := repository.db.Query(
+		"SELECT id, name, nick, email, created_at FROM users where name like ? or nick like ?",
+		nameOrNickAsLike, nameOrNickAsLike,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer lines.Close()
+
+	var users []model.User
+	for lines.Next() {
+		var user model.User
+		if err := lines.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+// FindByID retrieves a user from the database by their unique ID and returns the user data or an error if not found.
+func (repository *User) FindByID(userID uint64) (model.User, error) {
+	lines, err := repository.db.Query("SELECT id, name, nick, email, created_at FROM users WHERE id = ?",
+		userID,
+	)
+	if err != nil {
+		return model.User{}, err
+	}
+	defer lines.Close()
+
+	var user model.User
+	for lines.Next() {
+		if err := lines.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt); err != nil {
+			return model.User{}, err
+		}
+	}
+
+	return user, nil
+}
+
+// Update updates an exist user.
+func (repository *User) Update(userID uint64, user model.User) error {
+	statement, err := repository.db.Prepare("UPDATE users SET name = ?, nick = ?, email = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(user.Name, user.Nick, user.Email, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeleteByID deletes a user from the database by their unique ID.
+func (repository *User) DeleteByID(userID uint64) error {
+	statement, err := repository.db.Prepare("DELETE FROM users WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 	"strconv"
 
@@ -19,9 +18,8 @@ var (
 func Init() {
 	var err error
 
-	if err = godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// Ignore error loading .env file, as variables might be provided by the environment (e.g. Docker)
+	_ = godotenv.Load()
 
 	APIPort, err = strconv.Atoi(os.Getenv("API_PORT"))
 	if err != nil {
