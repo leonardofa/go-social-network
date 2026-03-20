@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	"github.com/badoux/checkmail"
 )
 
 // User represents a user in the application (social network).
@@ -31,6 +33,8 @@ func (user *User) validate(step string) error {
 		return errors.New("user nick cannot be empty")
 	case user.Email == "":
 		return errors.New("user email cannot be empty")
+	case checkmail.ValidateFormat(user.Email) != nil:
+		return errors.New("user email is invalid")
 	case step == "create" && user.Password == "":
 		return errors.New("user password cannot be empty")
 	default:
