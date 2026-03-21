@@ -21,6 +21,7 @@ type Path struct {
 // Init initializes the user path router.
 func Init(router *mux.Router) *mux.Router {
 	paths := userPath
+	paths = append(paths, loginPath)
 
 	for _, path := range paths {
 		router.HandleFunc(path.URI, path.Func).Methods(path.Method)

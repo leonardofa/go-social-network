@@ -1,6 +1,7 @@
 package model
 
 import (
+	"api/src/security"
 	"errors"
 	"strings"
 	"time"
@@ -20,7 +21,9 @@ type User struct {
 
 // Prepare prepares the user for insertion into the database.
 func (user *User) Prepare(step string) error {
-	user.normalizeFields()
+	if err := user.normalizeFields(step); err != nil {
+		return err
+	}
 	return user.validate(step)
 }
 
@@ -43,8 +46,17 @@ func (user *User) validate(step string) error {
 }
 
 // normalizeFields normalizes the user data.
-func (user *User) normalizeFields() {
+func (user *User) normalizeFields(step string) error {
 	user.Name = strings.TrimSpace(user.Name)
 	user.Nick = strings.TrimSpace(user.Nick)
 	user.Email = strings.TrimSpace(user.Email)
+
+	if step == "create" {
+		if hash, err := security.GenerateFromPassword(user.Password); err != nil {
+			return err
+		} else {
+			user.Password = string(hash)
+		}
+	}
+	return nil
 }

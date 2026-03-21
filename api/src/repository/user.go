@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"api/src/security"
 	"database/sql"
 	"strings"
 
@@ -111,4 +112,25 @@ func (repository *User) DeleteByID(userID uint64) error {
 	}
 
 	return nil
+}
+
+func (repository *User) Login(userParam model.User) (bool, error) {
+	lines, err := repository.db.Query("SELECT password FROM users WHERE email = ?", userParam.Email)
+	if err != nil {
+		return false, err
+	}
+	defer lines.Close()
+
+	var hashedPassword string
+	if lines.Next() {
+		if err := lines.Scan(&hashedPassword); err != nil {
+			return false, err
+		}
+	} else {
+		return false, nil
+	}
+
+	err = security.CompareHashAndPassword(hashedPassword, userParam.Password)
+
+	return err == nil, nil
 }

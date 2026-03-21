@@ -100,7 +100,7 @@ linters-settings:
       - name: error-strings
       - name: errorf
       - name: exported
-        arguments: ["checkPrivateReceivers"]
+        arguments: [ "checkPrivateReceivers" ]
       - name: increment-decrement
       - name: indent-error-flow
       - name: package-comments
