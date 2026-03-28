@@ -114,23 +114,27 @@ func (repository *User) DeleteByID(userID uint64) error {
 	return nil
 }
 
-func (repository *User) Login(userParam model.User) (bool, error) {
-	lines, err := repository.db.Query("SELECT password FROM users WHERE email = ?", userParam.Email)
+func (repository *User) Login(userParam model.User) (model.User, error) {
+	var user = model.User{}
+	lines, err := repository.db.Query("SELECT id, password FROM users WHERE email = ?", userParam.Email)
 	if err != nil {
-		return false, err
+		return user, nil
 	}
 	defer lines.Close()
 
-	var hashedPassword string
 	if lines.Next() {
-		if err := lines.Scan(&hashedPassword); err != nil {
-			return false, err
+		if err := lines.Scan(&user.ID, &user.Password); err != nil {
+			return user, nil
 		}
 	} else {
-		return false, nil
+		return user, nil
 	}
 
-	err = security.CompareHashAndPassword(hashedPassword, userParam.Password)
+	err = security.CompareHashAndPassword(user.Password, userParam.Password)
 
-	return err == nil, nil
+	if err != nil {
+		return model.User{}, nil
+	}
+
+	return user, nil
 }

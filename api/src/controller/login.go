@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"api/src/auth"
 	"api/src/config"
 	"api/src/model"
 	"api/src/repository"
@@ -31,16 +32,22 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	defer dbConn.Close()
 
-	match, err := repository.New(dbConn).Login(user)
+	user, err = repository.New(dbConn).Login(user)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	if !match {
+	if user.ID == 0 {
 		response.JSON(w, http.StatusUnauthorized, nil)
 		return
 	}
 
-	response.JSON(w, http.StatusOK, "Authenticated")
+	token, err := auth.CreateToken(user.ID)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	w.Write([]byte(token))
 }
