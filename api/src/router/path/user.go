@@ -19,13 +19,13 @@ var userPath = []Path{
 		URI:    "/users/{id}",
 		Method: http.MethodGet,
 		Func:   controller.ReadUser,
-		Secure: false,
+		Secure: true,
 	},
 	{
 		URI:    "/users",
 		Method: http.MethodGet,
 		Func:   controller.ReadUserList,
-		Secure: false,
+		Secure: true,
 	},
 	{
 		URI:    "/users/{id}",
