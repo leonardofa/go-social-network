@@ -114,6 +114,7 @@ func (repository *User) DeleteByID(userID uint64) error {
 	return nil
 }
 
+// Login authenticates a user by validating their email and password against the database and returns the user or an error.
 func (repository *User) Login(userParam model.User) (model.User, error) {
 	var user = model.User{}
 	lines, err := repository.db.Query("SELECT id, password FROM users WHERE email = ?", userParam.Email)

@@ -31,12 +31,12 @@ var userPath = []Path{
 		URI:    "/users/{id}",
 		Method: http.MethodPut,
 		Func:   controller.UpdateUser,
-		Secure: false,
+		Secure: true,
 	},
 	{
 		URI:    "/users/{id}",
 		Method: http.MethodDelete,
 		Func:   controller.DeleteUser,
-		Secure: false,
+		Secure: true,
 	},
 }

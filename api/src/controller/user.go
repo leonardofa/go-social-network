@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"api/src/auth"
 	"api/src/config"
 	"api/src/model"
 	"api/src/repository"
 	"api/src/response"
+
 	"encoding/json"
 	"errors"
 	"io"
@@ -107,6 +109,16 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userIDToken, err := auth.ExtractUserIDFromRequest(r)
+	switch {
+	case err != nil:
+		response.ERROR(w, http.StatusUnauthorized, err)
+		return
+	case userID != userIDToken:
+		response.ERROR(w, http.StatusForbidden, errors.New("you are not allowed to delete this user"))
+		return
+	}
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		response.ERROR(w, http.StatusUnprocessableEntity, err)
@@ -145,6 +157,16 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
 		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	userIDToken, err := auth.ExtractUserIDFromRequest(r)
+	switch {
+	case err != nil:
+		response.ERROR(w, http.StatusUnauthorized, err)
+		return
+	case userID != userIDToken:
+		response.ERROR(w, http.StatusForbidden, errors.New("you are not allowed to delete this user"))
 		return
 	}
 
