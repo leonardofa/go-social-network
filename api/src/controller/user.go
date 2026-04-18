@@ -185,3 +185,67 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	response.JSON(w, http.StatusNoContent, nil)
 }
+
+// FollowUser handles the user follow request by extracting the user ID from the request and performing the follow operation.
+func FollowUser(w http.ResponseWriter, r *http.Request) {
+	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	followerID, err := auth.ExtractUserIDFromRequest(r)
+	switch {
+	case err != nil:
+		response.ERROR(w, http.StatusUnauthorized, err)
+		return
+	case followerID == userID:
+		response.ERROR(w, http.StatusBadRequest, errors.New("you cannot follow yourself"))
+		return
+	}
+
+	dbConn, err := config.GetConnection()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer dbConn.Close()
+
+	err = repository.New(dbConn).Follow(userID, followerID)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
+}
+
+// UnfollowUser removes the follower relationship between the authenticated user and the specified user.
+func UnfollowUser(w http.ResponseWriter, r *http.Request) {
+	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	followerID, err := auth.ExtractUserIDFromRequest(r)
+	if err != nil {
+		response.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	dbConn, err := config.GetConnection()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer dbConn.Close()
+
+	err = repository.New(dbConn).Unfollow(userID, followerID)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
+}

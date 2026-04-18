@@ -39,4 +39,16 @@ var userPath = []Path{
 		Func:   controller.DeleteUser,
 		Secure: true,
 	},
+	{
+		URI:    "/users/{id}/follow",
+		Method: http.MethodPost,
+		Func:   controller.FollowUser,
+		Secure: true,
+	},
+	{
+		URI:    "/users/{id}/follow",
+		Method: http.MethodDelete,
+		Func:   controller.UnfollowUser,
+		Secure: true,
+	},
 }

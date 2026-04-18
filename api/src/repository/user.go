@@ -82,7 +82,7 @@ func (repository *User) FindByID(userID uint64) (model.User, error) {
 	return user, nil
 }
 
-// Update updates an exist user.
+// Update updates an existed user.
 func (repository *User) Update(userID uint64, user model.User) error {
 	statement, err := repository.db.Prepare("UPDATE users SET name = ?, nick = ?, email = ? WHERE id = ?")
 	if err != nil {
@@ -138,4 +138,36 @@ func (repository *User) Login(userParam model.User) (model.User, error) {
 	}
 
 	return user, nil
+}
+
+// Follow establishes a follower relationship between a user and a follower based on their unique IDs.
+func (repository *User) Follow(userID uint64, followerID uint64) error {
+	statement, err := repository.db.Prepare("INSERT IGNORE INTO followers (user_id, follower_id) VALUES (?, ?)")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(userID, followerID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Unfollow removes the follower relationship between a user and a follower based on their unique IDs.
+func (repository *User) Unfollow(userID uint64, followerID uint64) error {
+	statement, err := repository.db.Prepare("DELETE FROM followers WHERE user_id = ? AND follower_id = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(userID, followerID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
