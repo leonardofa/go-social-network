@@ -193,14 +193,23 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-
-	followerID, err := auth.ExtractUserIDFromRequest(r)
-	switch {
-	case err != nil:
-		response.ERROR(w, http.StatusUnauthorized, err)
+	followingUserId, err := strconv.ParseUint(mux.Vars(r)["followingUserId"], 10, 64)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
 		return
-	case followerID == userID:
-		response.ERROR(w, http.StatusBadRequest, errors.New("you cannot follow yourself"))
+	}
+	userIDToken, err := auth.ExtractUserIDFromRequest(r)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	switch {
+	case userID == followingUserId:
+		response.ERROR(w, http.StatusForbidden, errors.New("you cannot follow yourself"))
+		return
+	case userIDToken != userID:
+		response.ERROR(w, http.StatusForbidden, errors.New("you are not allowed to follow this user"))
 		return
 	}
 
@@ -211,7 +220,7 @@ func FollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer dbConn.Close()
 
-	err = repository.New(dbConn).Follow(userID, followerID)
+	err = repository.New(dbConn).Follow(userID, followingUserId)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -227,10 +236,23 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 		response.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-
-	followerID, err := auth.ExtractUserIDFromRequest(r)
+	followingUserId, err := strconv.ParseUint(mux.Vars(r)["followingUserId"], 10, 64)
 	if err != nil {
-		response.ERROR(w, http.StatusUnauthorized, err)
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+	userIDToken, err := auth.ExtractUserIDFromRequest(r)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	switch {
+	case userID == followingUserId:
+		response.ERROR(w, http.StatusForbidden, errors.New("you cannot unfollow yourself"))
+		return
+	case userIDToken != userID:
+		response.ERROR(w, http.StatusForbidden, errors.New("you are not allowed to unfollow this user"))
 		return
 	}
 
@@ -241,11 +263,58 @@ func UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer dbConn.Close()
 
-	err = repository.New(dbConn).Unfollow(userID, followerID)
+	err = repository.New(dbConn).Unfollow(userID, followingUserId)
 	if err != nil {
 		response.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	response.JSON(w, http.StatusNoContent, nil)
+}
+
+// ReadFollowersList retrieves the list of followers for a specified user.
+func ReadFollowersList(w http.ResponseWriter, r *http.Request) {
+	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	dbConn, err := config.GetConnection()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer dbConn.Close()
+
+	followers, err := repository.New(dbConn).ReadFollowersList(userID)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, followers)
+}
+
+func ReadFollowingList(w http.ResponseWriter, r *http.Request) {
+	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	dbConn, err := config.GetConnection()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer dbConn.Close()
+
+	followers, err := repository.New(dbConn).ReadFollowingList(userID)
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSON(w, http.StatusOK, followers)
 }

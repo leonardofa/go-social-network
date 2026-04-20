@@ -40,15 +40,27 @@ var userPath = []Path{
 		Secure: true,
 	},
 	{
-		URI:    "/users/{id}/follow",
+		URI:    "/users/{id}/following/{followingUserId}",
 		Method: http.MethodPost,
 		Func:   controller.FollowUser,
 		Secure: true,
 	},
 	{
-		URI:    "/users/{id}/follow",
+		URI:    "/users/{id}/following/{followingUserId}",
 		Method: http.MethodDelete,
 		Func:   controller.UnfollowUser,
+		Secure: true,
+	},
+	{
+		URI:    "/users/{id}/following",
+		Method: http.MethodGet,
+		Func:   controller.ReadFollowingList,
+		Secure: true,
+	},
+	{
+		URI:    "/users/{id}/followers",
+		Method: http.MethodGet,
+		Func:   controller.ReadFollowersList,
 		Secure: true,
 	},
 }

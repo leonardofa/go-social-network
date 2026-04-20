@@ -141,14 +141,14 @@ func (repository *User) Login(userParam model.User) (model.User, error) {
 }
 
 // Follow establishes a follower relationship between a user and a follower based on their unique IDs.
-func (repository *User) Follow(userID uint64, followerID uint64) error {
+func (repository *User) Follow(followerUserId uint64, followingUserId uint64) error {
 	statement, err := repository.db.Prepare("INSERT IGNORE INTO followers (user_id, follower_id) VALUES (?, ?)")
 	if err != nil {
 		return err
 	}
 	defer statement.Close()
 
-	_, err = statement.Exec(userID, followerID)
+	_, err = statement.Exec(followingUserId, followerUserId)
 	if err != nil {
 		return err
 	}
@@ -157,17 +157,66 @@ func (repository *User) Follow(userID uint64, followerID uint64) error {
 }
 
 // Unfollow removes the follower relationship between a user and a follower based on their unique IDs.
-func (repository *User) Unfollow(userID uint64, followerID uint64) error {
+func (repository *User) Unfollow(followerUserId uint64, followingUserId uint64) error {
 	statement, err := repository.db.Prepare("DELETE FROM followers WHERE user_id = ? AND follower_id = ?")
 	if err != nil {
 		return err
 	}
 	defer statement.Close()
 
-	_, err = statement.Exec(userID, followerID)
+	_, err = statement.Exec(followingUserId, followerUserId)
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// ReadFollowingList retrieves the list of users that a specific user is following based on their unique ID.
+func (repository *User) ReadFollowingList(followerId uint64) ([]model.User, error) {
+	lines, err := repository.db.Query(`
+		SELECT u.id, u.name, u.nick, u.email, u.created_at
+		FROM users u INNER JOIN followers f ON u.id = f.user_id
+		WHERE f.follower_id = ?
+	`, followerId)
+	if err != nil {
+		return nil, err
+	}
+	defer lines.Close()
+
+	var users []model.User
+	for lines.Next() {
+		var user model.User
+		if err := lines.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
+// ReadFollowersList retrieves the list of followers for a specified user.
+func (repository *User) ReadFollowersList(userID uint64) ([]model.User, error) {
+	lines, err := repository.db.Query(`
+		SELECT u.id, u.name, u.nick, u.email, u.created_at
+		FROM users u INNER JOIN followers f ON u.id = f.follower_id
+		WHERE f.user_id = ?
+	`, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer lines.Close()
+
+	var users []model.User
+	for lines.Next() {
+		var user model.User
+		if err := lines.Scan(&user.ID, &user.Name, &user.Nick, &user.Email, &user.CreatedAt); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+
 }
