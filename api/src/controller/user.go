@@ -6,6 +6,7 @@ import (
 	"api/src/model"
 	"api/src/repository"
 	"api/src/response"
+	"api/src/security"
 
 	"encoding/json"
 	"errors"
@@ -296,6 +297,7 @@ func ReadFollowersList(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, followers)
 }
 
+// ReadFollowingList retrieves the list of users that the specified user is following.
 func ReadFollowingList(w http.ResponseWriter, r *http.Request) {
 	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
 	if err != nil {
@@ -317,4 +319,70 @@ func ReadFollowingList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.JSON(w, http.StatusOK, followers)
+}
+
+// UpdatePassword updates the password of a user
+func UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	userID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+	userIDToken, err := auth.ExtractUserIDFromRequest(r)
+	if err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if userIDToken != userID {
+		response.ERROR(w, http.StatusForbidden, errors.New("you are not allowed to change the password of this user"))
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		response.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var passwordChangeModel model.Password
+	if err = json.Unmarshal(body, &passwordChangeModel); err != nil {
+		response.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+	if passwordChangeModel.Actual == "" || passwordChangeModel.New == "" {
+		response.ERROR(w, http.StatusBadRequest, errors.New("actual and new password fields are required"))
+		return
+	}
+	if passwordChangeModel.New == passwordChangeModel.Actual {
+		response.ERROR(w, http.StatusBadRequest, errors.New("new password cannot be the same as the old password"))
+		return
+	}
+
+	dbConn, err := config.GetConnection()
+	if err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer dbConn.Close()
+
+	if password, err := repository.New(dbConn).GetPassWord(userID); err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	} else if err = security.CompareHashAndPassword(password, passwordChangeModel.Actual); err != nil {
+		response.ERROR(w, http.StatusForbidden, errors.New("actual password is incorrect"))
+		return
+	}
+
+	if newHash, err := security.GenerateFromPassword(passwordChangeModel.New); err != nil {
+		response.ERROR(w, http.StatusInternalServerError, err)
+		return
+	} else {
+		if err = repository.New(dbConn).UpdatePassword(userID, string(newHash)); err != nil {
+			response.ERROR(w, http.StatusInternalServerError, err)
+			return
+		}
+	}
+
+	response.JSON(w, http.StatusNoContent, nil)
 }

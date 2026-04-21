@@ -3,6 +3,7 @@ package repository
 import (
 	"api/src/security"
 	"database/sql"
+	"errors"
 	"strings"
 
 	"api/src/model"
@@ -219,4 +220,38 @@ func (repository *User) ReadFollowersList(userID uint64) ([]model.User, error) {
 
 	return users, nil
 
+}
+
+// GetPassWord retrieves the password of a user from the database by their unique ID, or returns an error if not found.
+func (repository *User) GetPassWord(userID uint64) (string, error) {
+	lines, err := repository.db.Query("SELECT password FROM users WHERE id = ?", userID)
+	if err != nil {
+		return "", err
+	}
+	defer lines.Close()
+
+	var password string
+	for lines.Next() {
+		if err := lines.Scan(&password); err != nil {
+			return "", err
+		}
+		return password, nil
+	}
+
+	return "", errors.New("user not found")
+}
+
+// UpdatePassword updates the password of a user identified by the given user ID in the database.
+func (repository *User) UpdatePassword(userID uint64, password string) error {
+	statement, err := repository.db.Prepare("UPDATE users SET password = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	_, err = statement.Exec(password, userID)
+	if err != nil {
+		return err
+	}
+	return nil
 }
