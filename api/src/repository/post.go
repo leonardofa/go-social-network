@@ -116,7 +116,7 @@ func (repository Posts) Update(postID uint64, post model.Post) error {
 	}
 	defer statement.Close()
 
-	if _, err = statement.Exec(post.Title, post.Content, post.ID); err != nil {
+	if _, err = statement.Exec(post.Title, post.Content, postID); err != nil {
 		return err
 	}
 
@@ -192,12 +192,9 @@ func (repository Posts) Like(postID uint64) error {
 // Unlike decrements the like count of a post identified by postID in the database, ensuring it does not drop below zero.
 func (repository Posts) Unlike(postID uint64) error {
 	statement, err := repository.db.Prepare(`
-		UPDATE posts SET likes = 
-		CASE 
-			WHEN likes > 0 THEN likes - 1 
-			ELSE 0 
-		END 
-		WHERE id = ?`,
+			UPDATE posts SET likes = 
+			IF(likes > 0, likes - 1, 0) 
+			WHERE id = ?`,
 	)
 	if err != nil {
 		return err

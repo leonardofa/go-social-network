@@ -59,7 +59,7 @@ func CreatePost(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusCreated, post)
 }
 
-// ReadPosts busca os posts que apareceriam no feed do usuário.
+// ReadPosts retrieves the posts that would appear in the user's feed.
 func ReadPosts(w http.ResponseWriter, r *http.Request) {
 	userID, err := auth.ExtractUserIDFromRequest(r)
 	if err != nil {
@@ -115,7 +115,7 @@ func ReadPost(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, post)
 }
 
-// UpdatePost altera os dados de um post.
+// UpdatePost updates a post in the database with the provided data.
 func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	userID, err := auth.ExtractUserIDFromRequest(r)
 	if err != nil {
@@ -180,7 +180,7 @@ func UpdatePost(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusNoContent, nil)
 }
 
-// DeletePost exclui os dados de um post.
+// DeletePost deletes a post from the database.
 func DeletePost(w http.ResponseWriter, r *http.Request) {
 	userID, err := auth.ExtractUserIDFromRequest(r)
 	if err != nil {
@@ -227,7 +227,7 @@ func DeletePost(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusNoContent, nil)
 }
 
-// ReadUserPosts busca todos os posts de um usuário.
+// ReadUserPosts retrieves all posts by a specific user.
 func ReadUserPosts(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userID, err := strconv.ParseUint(params["id"], 10, 64)
@@ -253,7 +253,7 @@ func ReadUserPosts(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusOK, posts)
 }
 
-// LikePost adiciona uma curtida no post.
+// LikePost adds a like to a post.
 func LikePost(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	postID, err := strconv.ParseUint(params["id"], 10, 64)
@@ -278,7 +278,7 @@ func LikePost(w http.ResponseWriter, r *http.Request) {
 	response.JSON(w, http.StatusNoContent, nil)
 }
 
-// UnlikePost subtrai uma curtida no post.
+// UnlikePost remove one like to a post.
 func UnlikePost(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	postID, err := strconv.ParseUint(params["id"], 10, 64)
