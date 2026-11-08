@@ -9,13 +9,13 @@ import (
 
 var (
 	// DBUrl dbConnString is the connection string used to connect to the MySQL database.
-	DBUrl = "root:xablau@tcp(localhost:3306)/social_network"
+	DBUrl = "root:root@/socialnetwork"
 
 	// APIPort is the port on which the API server will listen to.
-	APIPort = 5000
+	APIPort = 8080
 
 	// SecretKey is the secret key used to sign JWT tokens.
-	SecretKey []byte
+	SecretKey = []byte("ORBahUm1ITQAJWrLPEGHzIN8W2kpi+DZbSKdh+Wzelyq88NrZMOi0TumNiK/qsqMo4o7iiMN2eELQSwlJHLqfw==")
 )
 
 func Init() {
@@ -26,10 +26,13 @@ func Init() {
 
 	APIPort, err = strconv.Atoi(os.Getenv("API_PORT"))
 	if err != nil {
-		APIPort = 5000
+		APIPort = 8080
 	}
 
-	DBUrl = os.Getenv("DB_CONN_STRING")
+	dbConnString := os.Getenv("DB_CONN_STRING")
+	if dbConnString != "" {
+		DBUrl = dbConnString
+	}
 
 	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 }

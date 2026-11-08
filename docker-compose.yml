@@ -27,11 +27,11 @@ services:
     container_name: social-network-api
     #    restart: always
     environment:
-      API_PORT: "5000"
+      API_PORT: "8080"
       DB_CONN_STRING: "root:root@tcp(db:3306)/socialnetwork"
       SECRET_KEY: "ORBahUm1ITQAJWrLPEGHzIN8W2kpi+DZbSKdh+Wzelyq88NrZMOi0TumNiK/qsqMo4o7iiMN2eELQSwlJHLqfw=="
     ports:
-      - "5000:5000"
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
