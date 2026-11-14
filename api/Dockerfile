@@ -1,5 +1,5 @@
 # Stage 1: Build the Go application
-FROM golang:1.26-alpine AS builder
+FROM golang:1.27-alpine AS builder
 
 # Set the working directory
 WORKDIR /app
@@ -25,8 +25,8 @@ WORKDIR /app
 # Copy the binary from the builder stage
 COPY --from=builder /app/api-exe .
 
-# Expose the port the API will listen on (default 5000)
-EXPOSE 5000
+# Expose the port the API will listen on (default 8080)
+EXPOSE 8080
 
 # Run the application
 CMD ["./api-exe"]
