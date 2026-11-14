@@ -37,12 +37,7 @@ var postPaths = []Path{
 		Func:   controller.DeletePost,
 		Secure: true,
 	},
-	{
-		URI:    "/users/{id}/posts",
-		Method: http.MethodGet,
-		Func:   controller.ReadUserPosts,
-		Secure: true,
-	},
+
 	{
 		URI:    "/posts/{id}/like",
 		Method: http.MethodPost,

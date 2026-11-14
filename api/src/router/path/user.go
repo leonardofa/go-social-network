@@ -69,4 +69,10 @@ var userPath = []Path{
 		Func:   controller.UpdatePassword,
 		Secure: true,
 	},
+	{
+		URI:    "/users/{id}/posts",
+		Method: http.MethodGet,
+		Func:   controller.ReadUserPosts,
+		Secure: true,
+	},
 }
