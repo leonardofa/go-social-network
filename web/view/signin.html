@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GO Social - Sign in</title>
+    <link rel="stylesheet" type="text/css" href="/assets/css/login.css">
+</head>
+<body>
+    <main class="login-container">
+        <header class="login-header">
+            <h1>Login</h1>
+            <p>Use your credentials to sign in</p>
+        </header>
+
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="your-mail@mail.com" required autocomplete="email" autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn-submit">Sign in</button>
+
+            <p class="signup-link">
+                Don't have an account? <a href="/signup">Sign up</a>
+            </p>
+        </form>
+    </main>
+</body>
+</html>

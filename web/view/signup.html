@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GO Social - Sign up</title>
+    <link rel="stylesheet" type="text/css" href="/assets/css/login.css">
+</head>
+<body>
+    <main class="login-container">
+        <header class="login-header">
+            <h1>Sign Up</h1>
+            <p>Create your account to get started</p>
+        </header>
+
+        <form action="/signup" method="POST">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" placeholder="John Doe" required autocomplete="name" autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="nick">Nick</label>
+                <input type="text" id="nick" name="nick" placeholder="johndoe" required autocomplete="nickname">
+            </div>
+
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="your-mail@mail.com" required autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="new-password">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+            </div>
+
+            <button type="submit" class="btn-submit">Create Account</button>
+
+            <p class="signup-link">
+                Already have an account? <a href="/signin">Sign in</a>
+            </p>
+        </form>
+    </main>
+</body>
+</html>

@@ -6,18 +6,18 @@ import (
 	"web/src/controller"
 )
 
-// loginPath defines the "/login" endpoint with HTTP POST method and an unsecured handler for login functionality.
-var loginPath = []Path{
+// signin defines signin paths.
+var signin = []Path{
 	{
 		URI:    "/",
 		Method: http.MethodGet,
-		Func:   controller.LoginPage,
+		Func:   controller.RenderPageSignin,
 		Secure: false,
 	},
 	{
-		URI:    "/login",
+		URI:    "/signin",
 		Method: http.MethodGet,
-		Func:   controller.LoginPage,
+		Func:   controller.RenderPageSignin,
 		Secure: false,
 	},
 }

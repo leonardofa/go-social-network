@@ -20,12 +20,16 @@ type Path struct {
 
 // Init initializes the paths in router.
 func Init(router *mux.Router) *mux.Router {
-	paths := loginPath
+	paths := signin
+	paths = append(paths, signup...)
 
 	for _, path := range paths {
 		_func := path.Func
 		router.HandleFunc(path.URI, _func).Methods(path.Method)
 	}
+
+	fileServer := http.FileServer(http.Dir("./assets/"))
+	router.PathPrefix("/assets/").Handler(http.StripPrefix("/assets/", fileServer))
 
 	return router
 }
