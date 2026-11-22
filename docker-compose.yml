@@ -38,6 +38,23 @@ services:
     networks:
       - social-network-net
 
+  web:
+    profiles:
+      - web
+    build:
+      context: web
+      dockerfile: Dockerfile
+    container_name: social-network-web
+    #    restart: always
+    environment:
+      API_URL: "http://api:8080"
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - social-network-net
+
 networks:
   social-network-net:
     driver: bridge

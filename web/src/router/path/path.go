@@ -22,6 +22,7 @@ type Path struct {
 func Init(router *mux.Router) *mux.Router {
 	paths := signin
 	paths = append(paths, signup...)
+	paths = append(paths, userEndpoints...)
 
 	for _, path := range paths {
 		_func := path.Func

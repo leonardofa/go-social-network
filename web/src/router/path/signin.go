@@ -1,4 +1,4 @@
-// Package path defines user endpoints paths for user.
+// Package path defines user endpoints user authentication (sign in).
 package path
 
 import (
